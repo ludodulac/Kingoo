@@ -3,40 +3,73 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<meta name="theme-color" content="#000000">
 <title>KINGOO</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#000;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden;touch-action:manipulation;user-select:none}body{display:grid;place-items:center}.app{position:relative;width:min(100vw,900px);height:100dvh;background:#000;overflow:hidden}.top{position:absolute;inset:0 0 auto 0;z-index:5;height:64px;display:flex;align-items:center;justify-content:space-between;padding:12px 16px;pointer-events:none}.brand{font-weight:950;letter-spacing:.08em;color:#fba301;font-size:18px}.stage{font-size:13px;font-weight:850;color:#aaa;border:1px solid #252525;background:#0d0d0d;border-radius:999px;padding:8px 11px}canvas{display:block;width:100%;height:100%;background:#000}.hint{position:absolute;z-index:5;left:50%;bottom:18px;transform:translateX(-50%);white-space:nowrap;color:#777;font-size:13px;font-weight:750;pointer-events:none}.flash{position:absolute;inset:0;background:#8b0000;opacity:0;pointer-events:none;z-index:4}.flash.on{animation:flash .18s ease-out}@keyframes flash{0%{opacity:.28}100%{opacity:0}}.overlay{position:absolute;inset:0;z-index:10;display:grid;place-items:center;text-align:center;padding:28px;background:#000}.overlay.hidden{display:none}.card{max-width:520px}.preview{width:130px;height:130px;object-fit:contain;margin-bottom:18px}h1{margin:0 0 10px;color:#fba301;font-size:clamp(48px,12vw,88px);line-height:.9;letter-spacing:-.06em}p{margin:0 auto 24px;color:#aaa;font-size:16px;line-height:1.45;max-width:420px}button{appearance:none;border:0;border-radius:999px;background:#fba301;color:#000;font:inherit;font-weight:950;font-size:17px;padding:15px 30px;cursor:pointer}
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;background:#000;color:#fff;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;overflow:hidden;touch-action:manipulation;user-select:none}.app{position:relative;width:100vw;height:100dvh;background:#000}.hud{position:absolute;z-index:20;top:0;left:0;right:0;height:58px;display:flex;align-items:center;justify-content:space-between;padding:10px 14px;pointer-events:none}.brand{font-weight:950;color:#ff9b00;letter-spacing:.08em}.stage{font-size:13px;color:#aaa;background:#111;border:1px solid #252525;border-radius:999px;padding:8px 11px}.field{position:absolute;inset:58px 0 44px 0;overflow:hidden}.lion{position:absolute;width:112px;height:112px;object-fit:contain;transform-origin:center;cursor:pointer;-webkit-user-drag:none}.hint{position:absolute;z-index:20;bottom:14px;left:50%;transform:translateX(-50%);font-size:13px;color:#777;white-space:nowrap;pointer-events:none}.overlay{position:absolute;inset:0;z-index:40;background:#000;display:grid;place-items:center;text-align:center;padding:24px}.hidden{display:none}.card{max-width:520px}.preview{width:150px;height:150px;object-fit:contain}h1{margin:8px 0 10px;font-size:clamp(52px,12vw,90px);line-height:.9;color:#ff9b00}p{color:#aaa;line-height:1.45}button{border:0;border-radius:999px;padding:15px 30px;background:#ff9b00;color:#000;font:inherit;font-weight:950;font-size:17px;cursor:pointer}.flash{position:absolute;inset:0;z-index:30;background:#7a0000;opacity:0;pointer-events:none}.flash.on{animation:flash .18s}@keyframes flash{0%{opacity:.3}100%{opacity:0}}
 </style>
 </head>
 <body>
 <div class="app">
-  <div class="top"><div class="brand">KINGOO</div><div class="stage" id="stage">TABLEAU 1 / 10</div></div>
-  <canvas id="game"></canvas>
+  <div class="hud"><div class="brand">KINGOO</div><div class="stage" id="stage">TABLEAU 1 / 10</div></div>
+  <div class="field" id="field"></div>
   <div class="flash" id="flash"></div>
   <div class="hint">Clique uniquement sur le lion orange.</div>
-  <section class="overlay" id="start"><div class="card"><img class="preview" id="preview" alt="Kingoo"><h1>KINGOO</h1><p>Retrouve toujours le lion orange. À chaque tableau, un nouveau lion coloré rejoint le jeu.</p><button id="play">JOUER</button></div></section>
-  <section class="overlay hidden" id="win"><div class="card"><img class="preview" id="preview2" alt="Kingoo"><h1>BRAVO !</h1><p>Tu as retrouvé Kingoo dans tous les tableaux.</p><button id="again">REJOUER</button></div></section>
+  <section class="overlay" id="start"><div class="card"><img src="assets/lion-orange.png" class="preview" alt="Kingoo"><h1>KINGOO</h1><p>Retrouve toujours le lion orange. Un nouveau lion rejoint chaque tableau.</p><button id="play">JOUER</button></div></section>
+  <section class="overlay hidden" id="win"><div class="card"><img src="assets/lion-orange.png" class="preview" alt="Kingoo"><h1>BRAVO !</h1><p>Tu as retrouvé Kingoo dans tous les tableaux.</p><button id="again">REJOUER</button></div></section>
 </div>
 <script>
-const ORIGINAL='data:image/png;base64,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';
-const COLORS=[null,'#910000','#fb5700','#f6d574','#5d971e','#4aacf6','#620ea5','#03afae','#c19b6d','#f8f8f8'];
-const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
-const stageEl=document.getElementById('stage'),flash=document.getElementById('flash'),start=document.getElementById('start'),win=document.getElementById('win');
-const img=new Image();let sprites=[],alpha=null,objects=[],level=1,running=false,w=0,h=0,dpr=1;
-img.src=ORIGINAL;document.getElementById('preview').src=ORIGINAL;document.getElementById('preview2').src=ORIGINAL;
-function tintSprite(color){const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d');x.drawImage(img,0,0);if(color){x.globalCompositeOperation='source-in';x.fillStyle=color;x.fillRect(0,0,c.width,c.height)}return c}
-function build(){sprites=COLORS.map(tintSprite);const c=document.createElement('canvas');c.width=img.width;c.height=img.height;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0);alpha=x.getImageData(0,0,c.width,c.height).data;resize()}
-function rand(a,b){return a+Math.random()*(b-a)}function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
-function resize(){const r=canvas.getBoundingClientRect();w=Math.max(1,r.width);h=Math.max(1,r.height);dpr=Math.min(devicePixelRatio||1,2);canvas.width=Math.round(w*dpr);canvas.height=Math.round(h*dpr);ctx.setTransform(dpr,0,0,dpr,0,0);if(running)layout();else draw()}
-function layout(){objects=[];const n=level,top=72,bottom=55,base=Math.min(w,h-top-bottom),size=Math.max(86,Math.min(210,base*(n<=3?.32:n<=6?.27:.23))),pad=size*.44,ids=[0,...Array.from({length:n-1},(_,i)=>i+1)],z=shuffle([...ids]);for(const id of ids){objects.push({id,x:rand(pad,Math.max(pad,w-pad)),y:rand(top+pad,Math.max(top+pad,h-bottom-pad)),size:size*rand(.90,1.08),rot:rand(-.12,.12),z:z.indexOf(id)})}objects.sort((a,b)=>a.z-b.z);stageEl.textContent=`TABLEAU ${level} / ${COLORS.length}`;draw()}
-function dims(o){const ratio=img.width/img.height;let ww=o.size,hh=o.size;if(ratio>1)hh=ww/ratio;else ww=hh*ratio;return[ww,hh]}
-function draw(){ctx.setTransform(dpr,0,0,dpr,0,0);ctx.fillStyle='#000';ctx.fillRect(0,0,w,h);for(const o of objects){const [ww,hh]=dims(o);ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.rot);ctx.drawImage(sprites[o.id],-ww/2,-hh/2,ww,hh);ctx.restore()}}
-function alphaHit(o,px,py){const [ww,hh]=dims(o),dx=px-o.x,dy=py-o.y,c=Math.cos(-o.rot),s=Math.sin(-o.rot),lx=dx*c-dy*s,ly=dx*s+dy*c,u=lx/ww+.5,v=ly/hh+.5;if(u<0||u>=1||v<0||v>=1)return false;const ix=Math.max(0,Math.min(img.width-1,Math.floor(u*img.width))),iy=Math.max(0,Math.min(img.height-1,Math.floor(v*img.height)));return alpha[(iy*img.width+ix)*4+3]>45}
-function clickAt(px,py){if(!running)return;let hit=null;for(let i=objects.length-1;i>=0;i--){if(alphaHit(objects[i],px,py)){hit=objects[i];break}}if(!hit)return;if(hit.id===0){if(level>=COLORS.length){running=false;win.classList.remove('hidden')}else{level++;layout()}}else{flash.classList.remove('on');void flash.offsetWidth;flash.classList.add('on')}}
-canvas.addEventListener('pointerdown',e=>{const r=canvas.getBoundingClientRect();clickAt(e.clientX-r.left,e.clientY-r.top)});
-function begin(){level=1;running=true;start.classList.add('hidden');win.classList.add('hidden');layout()}
-document.getElementById('play').onclick=begin;document.getElementById('again').onclick=begin;window.addEventListener('resize',resize);if(img.complete)build();else img.onload=build;
+const field=document.getElementById('field');
+const stage=document.getElementById('stage');
+const start=document.getElementById('start');
+const win=document.getElementById('win');
+const flash=document.getElementById('flash');
+const play=document.getElementById('play');
+const again=document.getElementById('again');
+const orange='assets/lion-orange.png';
+const filters=[
+  'hue-rotate(338deg) saturate(1.8) brightness(1.05)',
+  'hue-rotate(20deg) saturate(1.8) brightness(1.2)',
+  'hue-rotate(70deg) saturate(1.7) brightness(1.1)',
+  'hue-rotate(145deg) saturate(1.5) brightness(1.2)',
+  'hue-rotate(195deg) saturate(1.9) brightness(1.1)',
+  'hue-rotate(255deg) saturate(1.7) brightness(1.05)',
+  'hue-rotate(305deg) saturate(1.4) brightness(1.1)',
+  'sepia(.65) saturate(.7) brightness(1.4)',
+  'grayscale(1) brightness(2.4)'
+];
+let level=1,items=[];
+function rand(min,max){return min+Math.random()*(max-min)}
+function place(img,i){
+  const r=field.getBoundingClientRect();
+  const size=Math.min(124,Math.max(78,r.width*.16));
+  img.style.width=size+'px';img.style.height=size+'px';
+  img.style.left=rand(0,Math.max(1,r.width-size))+'px';
+  img.style.top=rand(0,Math.max(1,r.height-size))+'px';
+  img.style.transform=`rotate(${rand(-16,16)}deg) scale(${rand(.9,1.08)})`;
+  img.style.zIndex=String(Math.floor(rand(1,100)));
+  if(i>0) img.style.filter=filters[(i-1)%filters.length];
+}
+function draw(){
+  field.innerHTML='';items=[];stage.textContent=`TABLEAU ${level} / 10`;
+  for(let i=0;i<level;i++){
+    const img=new Image();img.src=orange;img.alt='lion';img.className='lion';img.dataset.target=i===0?'1':'0';
+    img.onload=()=>place(img,i);
+    if(img.complete) place(img,i);
+    img.addEventListener('pointerdown',e=>{e.preventDefault();handle(img.dataset.target==='1')});
+    field.appendChild(img);items.push(img);
+  }
+}
+function handle(ok){
+  if(ok){
+    if(level>=10){field.innerHTML='';win.classList.remove('hidden');return}
+    level++;draw();
+  }else{
+    flash.classList.remove('on');void flash.offsetWidth;flash.classList.add('on');
+  }
+}
+function begin(){level=1;start.classList.add('hidden');win.classList.add('hidden');draw()}
+play.onclick=begin;again.onclick=begin;
+window.addEventListener('resize',()=>{if(start.classList.contains('hidden')&&win.classList.contains('hidden'))draw()});
 </script>
 </body>
 </html>
